@@ -1,0 +1,76 @@
+models:
+  - name: silver_airports
+    description: "Tabla de aeropuertos del mundo, limpiada y renombrada desde la fuente raw."
+    columns:
+      - name: airport_ident
+        description: "{{ doc('airport_ident') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['small_airport',
+                        'heliport',
+                        'closed',
+                        'medium_airport',
+                        'seaplane_base',
+                        'large_airport',
+                        'balloonport']
+      - name: airport_name
+        data_tests:
+          - not_null
+      - name: airport_lat
+        data_tests:
+            - dbt_expectations.expect_column_values_to_be_between:
+                arguments:
+                  min_value: -90
+                  max_value: 90
+
+  - name: silver_runways
+    description: "Tabla de runways, limpiada y renombrada desde la fuente raw."
+    columns:
+      - name: runway_id
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_ident
+        description: "{{ doc('airport_ident') }}"
+        data_tests:
+            - not_null
+            - relationships:
+                arguments:
+                  to: ref('silver_airports')
+                  field: airport_ident
+                config:
+                  severity: warn
+      - name: runway_length_ft
+        data_tests:
+            - dbt_expectations.expect_column_values_to_be_between:
+                arguments:
+                  min_value: 1
+      - name: runway_width_ft
+        data_tests:
+            - dbt_expectations.expect_column_values_to_be_between:
+                arguments:
+                  min_value: 1
+
+
+  - name: silver_airport_comments
+    description: "Tabla de comments, limpiada y renombrada desde la fuente raw."
+    columns:
+      - name: comment_id
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_ident
+        description: "{{ doc('airport_ident') }}"
+        data_tests:
+            - not_null
+            - relationships:
+                arguments:
+                  to: ref('silver_airports')
+                  field: airport_ident
+                config:
+                  severity: warn

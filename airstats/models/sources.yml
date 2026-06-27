@@ -1,0 +1,10 @@
+sources:
+  - name: airstats
+    schema: raw
+    tables:
+      - name: airports          # coincide con la tabla real, no necesita identifier
+
+      - name: comments
+        identifier: airport_comments   # SÍ necesita identifier, porque el nombre difiere
+
+      - name: runways           # coincide con la tabla real, no necesita identifier
